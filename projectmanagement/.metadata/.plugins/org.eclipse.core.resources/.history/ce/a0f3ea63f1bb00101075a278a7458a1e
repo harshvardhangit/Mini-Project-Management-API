@@ -1,0 +1,5 @@
+package com.example.projectmanagement.securityconfig;
+
+public class SecurityConfig {
+
+}

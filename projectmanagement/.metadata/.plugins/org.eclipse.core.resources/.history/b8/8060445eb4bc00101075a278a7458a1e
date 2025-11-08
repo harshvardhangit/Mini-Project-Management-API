@@ -1,0 +1,26 @@
+package com.example.projectmanagement.repository;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
+import com.example.projectmanagement.model.Task;
+
+public interface TaskRepository extends JpaRepository<Task, Long> {
+
+	@Query("select t from Task t join t.project p where p.owner.id = :ownerId and "
+			+ "(lower(t.title) like lower(concat('%', :searchByDescriptionOrTitle, '%')) or lower(t.description) like lower(concat('%', :searchByDescriptionOrTitle, '%')))")
+	Page<Task> searchByUserAndDescriptionOrTitle(@Param("ownerId") Long ownerId,
+			@Param("searchByDescriptionOrTitle") String searchByDescriptionOrTitle, Pageable pageable);
+
+	@Query("select t from Task t join t.project p where p.owner.id = :ownerId")
+	Page<Task> findByOwnerId(@Param("ownerId") Long ownerId, Pageable pageable);
+
+	@Query("SELECT t FROM Task t WHERE t.project.id = :projectId")
+	Page<Task> findByProjectId(@Param("projectId") Long projectId, Pageable pageable);
+
+	Optional<Task> findByTitleAndProjectId(String title, Long projectId);
+
+}

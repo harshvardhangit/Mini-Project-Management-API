@@ -1,0 +1,29 @@
+package com.example.projectmanagement.controller;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+import com.example.projectmanagement.model.Project;
+import com.example.projectmanagement.repository.ProjectRepo;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/projects")
+public class ProjectController {
+
+	@Autowired
+	private ProjectRepo projectRepository;
+
+	@PostMapping
+	public String createProject(@RequestBody Project project) {
+		projectRepository.save(project);
+		return "Project created!";
+	}
+
+	@GetMapping("/user/{userId}")
+	public List<Project> getUserProjects(@PathVariable Long userId) {
+		return projectRepository.findByUserId(userId);
+	}
+
+}

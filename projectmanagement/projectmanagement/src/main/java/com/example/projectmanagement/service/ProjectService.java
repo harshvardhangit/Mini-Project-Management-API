@@ -1,0 +1,76 @@
+package com.example.projectmanagement.service;
+
+import com.example.projectmanagement.dto.ProjectDto;
+import com.example.projectmanagement.model.Project;
+import com.example.projectmanagement.model.User;
+import com.example.projectmanagement.repository.ProjectRepository;
+import com.example.projectmanagement.repository.UserRepository;
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
+
+@Service
+public class ProjectService {
+
+	@Autowired
+	private ProjectRepository projectRepo;
+
+	@Autowired
+	private UserRepository userRepo;
+
+	@Autowired
+	private ModelMapper modelMapper;
+
+	public Project createProject(String username, ProjectDto dto) {
+		User owner = userRepo.findByUsername(username)
+				.orElseThrow(() -> new NoSuchElementException("User not found with name " + username));
+
+		Project project = modelMapper.map(dto, Project.class);
+		project.setOwner(owner);
+		Optional<Project> existingProject = projectRepo.findByNameAndOwnerId(dto.getName(), owner.getId());
+		if (existingProject.isPresent()) {
+			throw new RuntimeException("Project with name '" + dto.getName() + "' already exists for this user.");
+		}
+
+		return projectRepo.save(project);
+	}
+
+	public List<Project> listByUser(String username) {
+		return projectRepo.findByOwnerUsername(username);
+	}
+
+	public Project updateProject(Long id, ProjectDto dto, String username) {
+		User owner = userRepo.findByUsername(username)
+				.orElseThrow(() -> new NoSuchElementException("User not found with name " + username));
+
+		Project project = projectRepo.findByIdAndOwnerId(id, owner.getId())
+				.orElseThrow(() -> new NoSuchElementException("Project not found"));
+
+		modelMapper.map(dto, project);
+
+		return projectRepo.save(project);
+	}
+
+	public String deleteProject(Long id, String username) {
+		User owner = userRepo.findByUsername(username)
+				.orElseThrow(() -> new NoSuchElementException("User not found with name " + username));
+
+		Project project = projectRepo.findByIdAndOwnerId(id, owner.getId())
+				.orElseThrow(() -> new RuntimeException("Project not found"));
+
+		if (project.getTasks() != null && !project.getTasks().isEmpty()) {
+			boolean hasIncompleteTask = project.getTasks().stream()
+					.anyMatch(task -> !task.getStatus().name().equalsIgnoreCase("COMPLETED"));
+
+			if (hasIncompleteTask) {
+				throw new RuntimeException("Please complete all tasks before deleting the project.");
+			}
+		}
+		projectRepo.delete(project);
+		return "Project with name " + project.getName() + " delete Successfull";
+	}
+}

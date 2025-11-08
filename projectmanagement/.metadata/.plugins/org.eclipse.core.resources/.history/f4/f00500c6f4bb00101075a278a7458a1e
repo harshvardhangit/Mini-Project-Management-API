@@ -1,0 +1,30 @@
+package com.example.projectmanagement.service;
+
+public class ProjectService {
+
+	private final ProjectRepository projectRepo;
+	private final UserRepository userRepo;
+
+	public ProjectService(ProjectRepository projectRepo, UserRepository userRepo) {
+		this.projectRepo = projectRepo;
+		this.userRepo = userRepo;
+	}
+
+	public Project createProject(String username, Project project) {
+		User owner = userRepo.findByUsername(username).orElseThrow();
+		project.setOwner(owner);
+		return projectRepo.save(project);
+	}
+
+	public List<Project> listByUser(String username) {
+		return projectRepo.findByOwnerUsername(username);
+	}
+
+	public Project getByIdAndOwner(Long id, Long ownerId) {
+		return projectRepo.findByIdAndOwnerId(id, ownerId).orElseThrow();
+	}
+
+	public void delete(Project project) {
+		projectRepo.delete(project);
+	}
+}

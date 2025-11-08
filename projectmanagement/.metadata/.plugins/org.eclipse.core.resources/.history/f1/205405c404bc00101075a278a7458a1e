@@ -1,0 +1,68 @@
+package com.example.projectmanagement.service;
+
+import com.example.projectmanagement.dto.TaskDto;
+import com.example.projectmanagement.model.Project;
+import com.example.projectmanagement.model.Task;
+import com.example.projectmanagement.model.User;
+import com.example.projectmanagement.repository.ProjectRepository;
+import com.example.projectmanagement.repository.TaskRepository;
+import com.example.projectmanagement.repository.UserRepository;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+
+@Service
+public class TaskService {
+	@Autowired
+	TaskRepository taskRepo;
+	@Autowired
+	ProjectRepository projectRepo;
+
+	@Autowired
+	private UserRepository userRepo;
+
+	public Task createTaskForUser(Long projectId, TaskDto dto, String username) {
+		User user = userRepo.findByUsername(username).orElseThrow();
+		Project project = projectRepo.findById(projectId).orElseThrow();
+		if (!project.getOwner().getId().equals(user.getId())) {
+			throw new RuntimeException("Unauthorized");
+		}
+		Task task = new Task();
+		task.setTitle(dto.getTitle());
+		task.setDescription(dto.getDescription());
+		task.setPriority(dto.getPriority() == null ? Task.Priority.MEDIUM : dto.getPriority());
+		task.setStatus(dto.getStatus() == null ? Task.Status.PENDING : dto.getStatus());
+		task.setDueDate(dto.getDueDate());
+		task.setProject(project);
+		return taskRepo.save(task);
+	}
+
+	public Page<Task> getTasksForUser(Long projectId, String username, int page, int size, String sortBy, String dir) {
+	    User user = userRepo.findByUsername(username).orElseThrow();
+	    Project project = projectRepo.findById(projectId).orElseThrow();
+	    if (!project.getOwner().getId().equals(user.getId())) throw new RuntimeException("Unauthorized");
+
+	    Sort sort = Sort.by(Sort.Direction.fromString(dir), sortBy);
+	    Pageable pageable = PageRequest.of(page, size, sort);
+	    return taskRepo.findByProject(project, pageable);
+	}
+
+	public Page<Task> searchByUser(Long ownerId, String q, Pageable pageable) {
+		if (q == null || q.isBlank()) {
+			return taskRepo.findByOwnerId(ownerId, pageable);
+		}
+		return taskRepo.searchByUserAndQuery(ownerId, q, pageable);
+	}
+
+	public Task updateTask(Task existing) {
+		// you'll implement mapping in controller for simplicity
+		return taskRepo.save(existing);
+	}
+
+	public void delete(Long id) {
+		taskRepo.deleteById(id);
+	}
+
+}

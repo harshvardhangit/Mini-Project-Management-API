@@ -1,0 +1,458 @@
+{
+	"info": {
+		"_postman_id": "e204194a-22d9-43f8-b9f5-0212e921243f",
+		"name": "Mini Project Management API",
+		"description": "API collection for Project Management App using Spring Boot + Basic Auth + PostgreSQL",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "27237038"
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "User Registration",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"Harsh\",\n  \"password\": \"harsh123\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/auth/registerUser",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"auth",
+								"registerUser"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Project",
+			"item": [
+				{
+					"name": "Create Project",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "harsh123",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "Harsh",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic dXNlcjE6cGFzc3dvcmQxMjM=",
+								"disabled": true
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Expense Manager\",\n    \"description\": \"An app for tracking personal expenses and budgets.\"\n }"
+						},
+						"url": {
+							"raw": "http://localhost:8080/projects/addproject",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"projects",
+								"addproject"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Projects",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "harsh123",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "Harsh",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic dXNlcjE6cGFzc3dvcmQxMjM=",
+								"disabled": true
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/projects/projectList",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"projects",
+								"projectList"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Project",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "Harsh",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "harsh123",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": " {\r\n    \"name\": \"Project Planner\",\r\n    \"description\": \"A project planning and collaboration tool for teams.\"\r\n  }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/projects/updateproject/6",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"projects",
+								"updateproject",
+								"6"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Project",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "harsh123",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "Harsh",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"Spring Boot Project 2\",\r\n    \"description\": \"My personal project\"\r\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/projects/deleteProject/8",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"projects",
+								"deleteProject",
+								"8"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Task",
+			"item": [
+				{
+					"name": "Add Task By Project Id",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "harsh123",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "Harsh",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"title\": \"Implement JWT Authentication\",\r\n  \"description\": \"Add JWT-based security to the project management API\",\r\n  \"status\": \"IN_PROGRESS\",\r\n  \"priority\": \"HIGH\",\r\n  \"dueDate\": \"2025-11-15\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/tasks/addtaskByProjectId/8",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"tasks",
+								"addtaskByProjectId",
+								"8"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "TakList By Project Id",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "harsh123",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "Harsh",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic dXNlcjE6cGFzc3dvcmQxMjM=",
+								"disabled": true
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/tasks/tasklistByProjectId/8",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"tasks",
+								"tasklistByProjectId",
+								"8"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Task",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "harsh123",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "Harsh",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"title\": \"Implement JWT Authentication1\",\r\n  \"description\": \"Add JWT-based security to the project management API\",\r\n  \"status\": \"IN_PROGRESS\",\r\n  \"priority\": \"HIGH\",\r\n  \"dueDate\": \"2025-11-15\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/tasks/updateTaskByTaskId/3",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"tasks",
+								"updateTaskByTaskId",
+								"3"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Task",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "harsh123",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "Harsh",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"title\": \"Implement JWT Authentication1\",\r\n  \"description\": \"Add JWT-based security to the project management API\",\r\n  \"status\": \"IN_PROGRESS\",\r\n  \"priority\": \"HIGH\",\r\n  \"dueDate\": \"2025-11-15\"\r\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/tasks/deleteTask/6",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"tasks",
+								"deleteTask",
+								"6"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "searchTaskListByFilter",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "harsh123",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "Harsh",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://localhost:8080/tasks/searchTaskListByFilter?searchByDescriptionOrTitle=Implement  Authentication for Expense Manager&sortBy=dueDate&orderBy=DESC",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"tasks",
+								"searchTaskListByFilter"
+							],
+							"query": [
+								{
+									"key": "searchByDescriptionOrTitle",
+									"value": "Implement  Authentication for Expense Manager"
+								},
+								{
+									"key": "sortBy",
+									"value": "dueDate"
+								},
+								{
+									"key": "orderBy",
+									"value": "DESC"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}

@@ -1,0 +1,82 @@
+package com.example.projectmanagement.controller;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.example.projectmanagement.dto.TaskDto;
+import com.example.projectmanagement.model.Task;
+import com.example.projectmanagement.repository.ProjectRepository;
+import com.example.projectmanagement.repository.TaskRepository;
+import com.example.projectmanagement.repository.UserRepository;
+import com.example.projectmanagement.service.TaskService;
+
+import jakarta.validation.Valid;
+
+@RestController
+@RequestMapping("/tasks")
+public class TaskController {
+
+	@Autowired
+	TaskService taskService;
+	@Autowired
+	UserRepository userRepo;
+	@Autowired
+	ProjectRepository projectRepo;
+	@Autowired
+	TaskRepository taskRepo;
+
+	@PostMapping("addtaskByProjectId/{projectId}")
+	public Task createTask(@PathVariable Long projectId, @Valid @RequestBody TaskDto dto,
+			@AuthenticationPrincipal UserDetails userDetails) {
+		return taskService.createTask(projectId, dto, userDetails.getUsername());
+	}
+
+	@GetMapping("/tasklistByProjectId/{projectId}")
+	public List<Task> TaskListByProject(@PathVariable Long projectId,
+			@RequestParam(value = "pageNo", defaultValue = "0", required = false) Integer pageNo,
+			@RequestParam(value = "pageSize", defaultValue = "20", required = false) Integer pageSize,
+			@RequestParam(value = "sortBy", defaultValue = "dueDate", required = false) String sortBy,
+			@RequestParam(value = "orderBy", defaultValue = "DESC", required = false) String orderBy,
+			@AuthenticationPrincipal UserDetails userDetails) {
+		return taskService.getTasksByprojectId(projectId, userDetails.getUsername(), pageNo, pageSize, sortBy, orderBy).toList();
+	}
+
+	@PutMapping("updateTaskByTaskId/{id}")
+	public Task updateTask(@PathVariable Long id, @Valid @RequestBody TaskDto dto,
+			@AuthenticationPrincipal UserDetails userDetails) {
+		return taskService.updateTask(id, dto, userDetails.getUsername());
+	}
+
+	@DeleteMapping("deleteTask/{id}")
+	public void deleteTask(@PathVariable Long id, @AuthenticationPrincipal UserDetails userDetails) {
+		taskService.deleteTask(id, userDetails.getUsername());
+	}
+
+	@GetMapping("/searchTaskListByFilter")
+	public List<Task> searchTaskListByMultiFilter(
+			@RequestParam(value = "searchByDescriptionOrTitle", required = false) String searchByDescriptionOrTitle,
+			@RequestParam(value = "pageNo", defaultValue = "0", required = false) Integer pageNo,
+			@RequestParam(value = "pageSize", defaultValue = "20", required = false) Integer pageSize,
+			@RequestParam(value = "sortBy", defaultValue = "dueDate", required = false) String sortBy,
+			@RequestParam(value = "orderBy", defaultValue = "DESC", required = false) String orderBy,
+			@AuthenticationPrincipal UserDetails userDetails) {
+
+		return taskService
+				.searchTaskByFilterAndSorting(searchByDescriptionOrTitle, pageNo, pageSize, sortBy, orderBy, userDetails.getUsername())
+				.toList();
+	}
+
+}

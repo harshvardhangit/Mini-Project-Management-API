@@ -1,0 +1,79 @@
+package com.example.projectmanagement.controller;
+
+import com.example.projectmanagement.dto.TaskDto;
+import com.example.projectmanagement.model.Project;
+import com.example.projectmanagement.model.Task;
+import com.example.projectmanagement.model.User;
+import com.example.projectmanagement.repository.ProjectRepository;
+import com.example.projectmanagement.repository.UserRepository;
+import com.example.projectmanagement.repository.TaskRepository;
+import com.example.projectmanagement.service.TaskService;
+import jakarta.validation.Valid;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.*;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/tasks")
+public class TaskController {
+
+	@Autowired
+	TaskService taskService;
+	@Autowired
+	UserRepository userRepo;
+	@Autowired
+	ProjectRepository projectRepo;
+	@Autowired
+	TaskRepository taskRepo;
+
+	@PostMapping("addtaskBy/{projectId}")
+	public Task create(@PathVariable Long projectId, @Valid @RequestBody TaskDto dto,
+			@AuthenticationPrincipal UserDetails userDetails) {
+		return taskService.createTaskForUser(projectId, dto, userDetails.getUsername());
+	}
+
+	@GetMapping("/tasklist/{projectId}")
+	public Page<Task> listByProject(@PathVariable Long projectId, @RequestParam(defaultValue = "0") int page,
+			@RequestParam(defaultValue = "10") int size, @RequestParam(defaultValue = "dueDate") String sortBy,
+			@RequestParam(defaultValue = "asc") String dir, @AuthenticationPrincipal UserDetails userDetails) {
+		return taskService.getTasksForUser(projectId, userDetails.getUsername(), page, size, sortBy, dir);
+	}
+
+	@GetMapping("/search")
+	public Page<Task> search(@RequestParam(required = false) String q, @RequestParam(defaultValue = "0") int page,
+			@RequestParam(defaultValue = "10") int size, @RequestParam(defaultValue = "dueDate") String sortBy,
+			@RequestParam(defaultValue = "asc") String dir, @AuthenticationPrincipal UserDetails userDetails) {
+		User user = userRepo.findByUsername(userDetails.getUsername()).orElseThrow();
+		Sort sort = Sort.by(Sort.Direction.fromString(dir), sortBy);
+		Pageable pageable = PageRequest.of(page, size, sort);
+		return taskService.searchByUser(user.getId(), q, pageable);
+	}
+
+	@PutMapping("/{id}")
+	public Task update(@PathVariable Long id, @Valid @RequestBody TaskDto dto,
+			@AuthenticationPrincipal UserDetails userDetails) {
+		Task t = taskRepo.findById(id).orElseThrow();
+		if (!t.getProject().getOwner().getUsername().equals(userDetails.getUsername()))
+			throw new RuntimeException("Unauthorized");
+		t.setTitle(dto.getTitle());
+		t.setDescription(dto.getDescription());
+		if (dto.getPriority() != null)
+			t.setPriority(dto.getPriority());
+		if (dto.getStatus() != null)
+			t.setStatus(dto.getStatus());
+		t.setDueDate(dto.getDueDate());
+		return taskRepo.save(t);
+	}
+
+	@DeleteMapping("/{id}")
+	public void delete(@PathVariable Long id, @AuthenticationPrincipal UserDetails userDetails) {
+		Task t = taskRepo.findById(id).orElseThrow();
+		if (!t.getProject().getOwner().getUsername().equals(userDetails.getUsername()))
+			throw new RuntimeException("Unauthorized");
+		taskRepo.delete(t);
+	}
+
+}

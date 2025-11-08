@@ -1,0 +1,48 @@
+package com.example.projectmanagement.controller;
+
+import com.example.projectmanagement.dto.ProjectDto;
+import com.example.projectmanagement.model.Project;
+import com.example.projectmanagement.service.ProjectService;
+import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/projects")
+public class ProjectController {
+
+	@Autowired
+	private ProjectService projectService;
+
+	@PostMapping("/addproject")
+	public ResponseEntity<Project> create(@Valid @RequestBody ProjectDto dto,
+			@AuthenticationPrincipal UserDetails userDetails) {
+		Project project = projectService.createProject(userDetails.getUsername(), dto);
+		return ResponseEntity.status(HttpStatus.CREATED).body(project);
+	}
+
+	@GetMapping("/projectList")
+	public ResponseEntity<List<Project>> list(@AuthenticationPrincipal UserDetails userDetails) {
+		List<Project> listByUser = projectService.listByUser(userDetails.getUsername());
+		return ResponseEntity.status(HttpStatus.OK).body(listByUser);
+	}
+
+	@PutMapping("/updateproject/{id}")
+	public ResponseEntity<Project> update(@PathVariable Long id, @Valid @RequestBody ProjectDto dto,
+			@AuthenticationPrincipal UserDetails userDetails) {
+		Project updateProject = projectService.updateProject(id, dto, userDetails.getUsername());
+		return ResponseEntity.status(HttpStatus.OK).body(updateProject);
+	}
+
+	@DeleteMapping("/deleteProject/{id}")
+	public ResponseEntity<String> delete(@PathVariable Long id, @AuthenticationPrincipal UserDetails userDetails) {
+		String deleteProject = projectService.deleteProject(id, userDetails.getUsername());
+		return ResponseEntity.status(HttpStatus.OK).body(deleteProject);
+	}
+}

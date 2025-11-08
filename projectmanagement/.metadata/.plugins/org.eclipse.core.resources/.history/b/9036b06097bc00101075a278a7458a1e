@@ -1,0 +1,62 @@
+package com.example.projectmanagement.service;
+
+import com.example.projectmanagement.dto.ProjectDto;
+import com.example.projectmanagement.model.Project;
+import com.example.projectmanagement.model.User;
+import com.example.projectmanagement.repository.ProjectRepository;
+import com.example.projectmanagement.repository.UserRepository;
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.NoSuchElementException;
+
+@Service
+public class ProjectService {
+
+	@Autowired
+	private ProjectRepository projectRepo;
+
+	@Autowired
+	private UserRepository userRepo;
+
+	@Autowired
+	private ModelMapper modelMapper;
+
+	// Create project
+	public Project createProject(String username, ProjectDto dto) {
+		User owner = userRepo.findByUsername(username)
+				.orElseThrow(() -> new NoSuchElementException("User not found with name " + username));
+
+		Project project = modelMapper.map(dto, Project.class);
+		project.setOwner(owner);
+
+		return projectRepo.save(project);
+	}
+
+	// List all projects of a user
+	public List<Project> listByUser(String username) {
+		return projectRepo.findByOwnerUsername(username);
+	}
+
+	// Update project
+	public Project updateProject(Long id, ProjectDto dto, String username) {
+		User owner = userRepo.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
+
+		Project project = projectRepo.findByIdAndOwnerId(id, owner.getId())
+				.orElseThrow(() -> new RuntimeException("Project not found"));
+
+		modelMapper.map(dto, project); // updates existing fields
+
+		return projectRepo.save(project);
+	}
+
+	// Delete project
+	public void deleteProject(Long id, String username) {
+		User owner = userRepo.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
+		Project project = projectRepo.findByIdAndOwnerId(id, owner.getId())
+				.orElseThrow(() -> new RuntimeException("Project not found"));
+		projectRepo.delete(project);
+	}
+}

@@ -1,0 +1,21 @@
+package com.example.projectmanagement.dto;
+
+import jakarta.validation.constraints.NotBlank;
+import lombok.Getter;
+import lombok.Setter;
+import java.time.LocalDate;
+
+import com.example.projectmanagement.model.Task;
+
+@Getter
+@Setter
+public class TaskDto {
+
+	@NotBlank
+	private String title;
+	private String description;
+	private Task.Status status;
+	private Task.Priority priority;
+	private LocalDate dueDate;
+
+}
