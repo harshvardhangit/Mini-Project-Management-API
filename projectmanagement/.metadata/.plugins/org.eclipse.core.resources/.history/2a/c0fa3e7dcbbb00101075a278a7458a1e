@@ -1,0 +1,21 @@
+package com.example.projectmanagement;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class ProjectManagementApiApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(ProjectManagementApiApplication.class, args);
+	}
+
+	@Bean
+	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+		http.authorizeHttpRequests(auth -> auth.requestMatchers("/register").permitAll() // open registration
+				.anyRequest().authenticated()).httpBasic().and().csrf().disable();
+
+		return http.build();
+	}
+
+}

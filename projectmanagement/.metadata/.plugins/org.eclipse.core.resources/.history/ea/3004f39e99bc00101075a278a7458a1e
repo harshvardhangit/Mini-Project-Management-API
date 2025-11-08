@@ -1,0 +1,16 @@
+package com.example.projectmanagement.repository;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import com.example.projectmanagement.model.Project;
+
+import java.util.List;
+import java.util.Optional;
+
+public interface ProjectRepository extends JpaRepository<Project, Long> {
+	
+	List<Project> findByOwnerUsername(String username);
+
+	Optional<Project> findByIdAndOwnerId(Long id, Long ownerId);
+
+}

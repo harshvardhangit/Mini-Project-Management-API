@@ -1,0 +1,51 @@
+# Project Management JWT API
+
+Mini Project Management REST API built with Spring Boot, PostgreSQL and JWT Authentication.
+
+## Quick start
+
+1. Ensure PostgreSQL is running and a database named `manager` exists:
+```sql
+CREATE DATABASE manager;
+```
+
+2. Update `src/main/resources/application.properties` if needed:
+```
+spring.datasource.url=jdbc:postgresql://localhost:5432/manager
+spring.datasource.username=harsh
+spring.datasource.password=root
+jwt.secret=mysecretkey12345
+jwt.expiration-ms=1200000
+```
+
+3. Build and run:
+```bash
+mvn clean package
+mvn spring-boot:run
+```
+
+4. Postman flow:
+- Register:
+  POST http://localhost:8080/api/auth/register
+  Body: { "username": "harsh", "password": "1234" }
+- Login:
+  POST http://localhost:8080/api/auth/login
+  Body: { "username": "harsh", "password": "1234" }
+  Response: { "token": "..." }
+- Use token in Authorization header:
+  Authorization: Bearer <token>
+
+5. Example create project:
+  POST /api/projects
+  Header: Authorization: Bearer <token>
+  Body: { "name":"My Project", "description":"desc" }
+
+6. Example create task:
+  POST /api/projects/{projectId}/tasks
+  Header: Authorization: Bearer <token>
+  Body: { "title":"Task 1", "description":"desc", "priority":"HIGH", "status":"PENDING", "dueDate":"2025-12-01" }
+
+## Notes
+- Java 17
+- Lombok recommended for IDE
+- Token expiry: 20 minutes (1200000 ms)

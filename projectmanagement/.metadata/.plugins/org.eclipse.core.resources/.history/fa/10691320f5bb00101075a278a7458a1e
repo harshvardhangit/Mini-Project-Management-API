@@ -1,0 +1,37 @@
+package com.example.projectmanagement.service;
+
+public class TaskService {
+	
+	private final TaskRepository taskRepo;
+    private final ProjectRepository projectRepo;
+
+    public TaskService(TaskRepository taskRepo, ProjectRepository projectRepo) {
+        this.taskRepo = taskRepo;
+        this.projectRepo = projectRepo;
+    }
+
+    public Task createTask(Long projectId, Task task) {
+        Project project = projectRepo.findById(projectId).orElseThrow();
+        task.setProject(project);
+        return taskRepo.save(task);
+    }
+
+    public Page<Task> listByProject(Long projectId, Pageable pageable) {
+        return taskRepo.findByProjectId(projectId, pageable);
+    }
+
+    public Page<Task> searchByUser(Long ownerId, String q, Pageable pageable) {
+        if (q == null || q.isBlank()) {
+            return taskRepo.findByOwnerId(ownerId, pageable);
+        }
+        return taskRepo.searchByUserAndQuery(ownerId, q, pageable);
+    }
+
+    public Task updateTask(Task existing, TaskDtoToTaskMapper mapper) {
+        // you'll implement mapping in controller for simplicity
+        return taskRepo.save(existing);
+    }
+
+    public void delete(Long id) { taskRepo.deleteById(id); }
+
+}

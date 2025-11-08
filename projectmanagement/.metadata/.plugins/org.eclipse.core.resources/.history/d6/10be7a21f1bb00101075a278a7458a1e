@@ -1,0 +1,30 @@
+package com.example.projectmanagement;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.context.annotation.Bean;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class ProjectManagementApiApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(ProjectManagementApiApplication.class, args);
+	}
+
+
+	@Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/user/register").permitAll()  // 👈 allow register API
+                .anyRequest().authenticated()                   // protect others
+            )
+            .httpBasic()  // enable Basic Auth
+            .and()
+            .csrf().disable(); // disable CSRF for APIs (important for POST requests)
+
+        return http.build();
+    }
+}

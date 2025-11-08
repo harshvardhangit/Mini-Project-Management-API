@@ -1,0 +1,22 @@
+package com.example.projectmanagement.repository;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
+import com.example.projectmanagement.model.Project;
+
+import java.util.List;
+import java.util.Optional;
+
+public interface ProjectRepository extends JpaRepository<Project, Long> {
+
+	// Fetch all projects owned by a specific user
+	@Query("SELECT p FROM Project p WHERE p.owner.username = :username")
+	List<Project> findByOwnerUsername(@Param("username") String username);
+
+	// Fetch a specific project by ID and owner ID
+	@Query("SELECT p FROM Project p WHERE p.id = :id AND p.owner.id = :ownerId")
+	Optional<Project> findByIdAndOwnerId(@Param("id") Long id, @Param("ownerId") Long ownerId);
+
+}

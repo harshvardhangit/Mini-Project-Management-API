@@ -1,0 +1,13 @@
+Project Management JWT - Notes
+
+Security:
+- JWT token generated at /api/auth/login
+- Token must be sent as: Authorization: Bearer <token>
+- Token secret is hardcoded in application.properties
+
+Database:
+- PostgreSQL database 'manager'
+- Username: harsh
+- Password: root
+
+Endpoints overview in README.

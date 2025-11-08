@@ -1,0 +1,102 @@
+package com.example.projectmanagement.service;
+
+import java.util.NoSuchElementException;
+
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Service;
+
+import com.example.projectmanagement.dto.TaskDto;
+import com.example.projectmanagement.model.Project;
+import com.example.projectmanagement.model.Task;
+import com.example.projectmanagement.model.User;
+import com.example.projectmanagement.repository.ProjectRepository;
+import com.example.projectmanagement.repository.TaskRepository;
+import com.example.projectmanagement.repository.UserRepository;
+
+@Service
+public class TaskService {
+
+	@Autowired
+	private TaskRepository taskRepo;
+
+	@Autowired
+	private ProjectRepository projectRepo;
+
+	@Autowired
+	private UserRepository userRepo;
+
+	@Autowired
+	private ModelMapper modelMapper;
+
+	public Task createTask(Long projectId, TaskDto dto, String username) {
+		User user = userRepo.findByUsername(username)
+				.orElseThrow(() -> new NoSuchElementException("User not found with username: " + username));
+
+		Project project = projectRepo.findById(projectId)
+				.orElseThrow(() -> new NoSuchElementException("Project not found with id: " + projectId));
+
+		if (!project.getOwner().getId().equals(user.getId())) {
+			throw new RuntimeException("Unauthorized access");
+		}
+
+		Task task = modelMapper.map(dto, Task.class);
+		task.setPriority(dto.getPriority() == null ? Task.Priority.MEDIUM : dto.getPriority());
+		task.setStatus(dto.getStatus() == null ? Task.Status.PENDING : dto.getStatus());
+		task.setProject(project);
+
+		return taskRepo.save(task);
+	}
+
+	public Page<Task> getTasksByprojectId(Long projectId, String username, Integer pageNo, Integer pageSize, String sortBy,
+			String orderBy) {
+		User user = userRepo.findByUsername(username)
+				.orElseThrow(() -> new NoSuchElementException("User not found with username: " + username));
+
+		Project project = projectRepo.findById(projectId)
+				.orElseThrow(() -> new NoSuchElementException("Project not found with id: " + projectId));
+
+		if (!project.getOwner().getId().equals(user.getId()))
+			throw new RuntimeException("Unauthorized access");
+
+		Sort sort = orderBy.equalsIgnoreCase("ASC") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+		PageRequest pageable = PageRequest.of(pageNo, pageSize, sort);
+
+		return taskRepo.findByProjectId(projectId, pageable);
+	}
+
+	public Task updateTask(Long taskId, TaskDto dto, String username) {
+		Task task = taskRepo.findById(taskId)
+				.orElseThrow(() -> new NoSuchElementException("Task not found with id: " + taskId));
+
+		if (!task.getProject().getOwner().getUsername().equals(username))
+			throw new RuntimeException("Unauthorized access");
+
+		modelMapper.map(dto, task);
+		return taskRepo.save(task);
+	}
+
+	public void deleteTask(Long taskId, String username) {
+		Task task = taskRepo.findById(taskId)
+				.orElseThrow(() -> new NoSuchElementException("Task not found with id: " + taskId));
+
+		if (!task.getProject().getOwner().getUsername().equals(username))
+			throw new RuntimeException("Unauthorized access");
+
+		taskRepo.delete(task);
+	}
+
+	public Page<Task> searchTaskByFilterAndSorting(String descriptionOrTitle, Integer pageNo, Integer pageSize, String sortBy, String orderBy,
+			String username) {
+		User user = userRepo.findByUsername(username)
+				.orElseThrow(() -> new NoSuchElementException("User not found with username: " + username));
+
+		Sort sort = orderBy.equalsIgnoreCase("ASC") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+		PageRequest pageable = PageRequest.of(pageNo, pageSize, sort);
+
+		return taskRepo.searchByUserAndDescriptionOrTitle(user.getId(), descriptionOrTitle, pageable);
+	}
+}

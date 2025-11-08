@@ -1,0 +1,25 @@
+package com.example.projectmanagement.controller;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+import com.example.projectmanagement.model.User;
+import com.example.projectmanagement.repository.UserRepo;
+
+@RestController
+public class UserController {
+
+	@Autowired
+	private UserRepo userRepository;
+
+	@PostMapping("/register")
+	public String registerUser(@RequestBody User user) {
+		userRepository.save(user);
+		return "User registered successfully!";
+	}
+
+	@GetMapping("/hello")
+	public String hello() {
+		return "Welcome! You are authenticated.";
+	}
+}

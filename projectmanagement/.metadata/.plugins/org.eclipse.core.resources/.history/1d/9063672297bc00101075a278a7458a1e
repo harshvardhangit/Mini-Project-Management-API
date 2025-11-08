@@ -1,0 +1,13 @@
+package com.example.projectmanagement.config;
+
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+public class ModelMapperCofig {
+
+	@Bean
+	public ModelMapper modelMapper() {
+		return new ModelMapper();
+	}
+
+}
