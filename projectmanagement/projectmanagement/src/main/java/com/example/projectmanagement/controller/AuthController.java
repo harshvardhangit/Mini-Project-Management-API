@@ -36,5 +36,20 @@ public class AuthController {
 
 		return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("message", "User registered successfully"));
 	}
+	
+	@PostMapping("/loginUser")
+	public ResponseEntity<Map<String, String>> login(@Valid @RequestBody RegisterRequest req) {
+		Optional<User> user = userRepo.findByUsername(req.getUsername());
+
+		if (user.isEmpty()) {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Invalid username or password"));
+		}
+
+		if (!encoder.matches(req.getPassword(), user.get().getPassword())) {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Invalid username or password"));
+		}
+
+		return ResponseEntity.ok(Map.of("message", "Login successful", "username", user.get().getUsername()));
+	}
 
 }
